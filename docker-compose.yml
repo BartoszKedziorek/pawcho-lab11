@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+
+  php_server:
+    build:
+      dockerfile: DockerfilePHP
+      context: .
+    networks:
+      - backend
+    volumes:
+         - ./php_code/:/var/www/html/ 
+    
+  ngix_server:
+    build:
+      dockerfile: DockerfileNGINX
+      context: .
+    ports:
+      - "4001:80"
+    networks:
+      - backend
+      - frontend
+    volumes:
+        - ./php_code/:/var/www/html/
+
+  mysql_server:
+    image: mysql:8.4.0
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=pas123
+  
+  phpMyAdmin_server:
+    image: phpmyadmin:5.2.1-apache
+    ports:
+      - "6001:80"
+    networks:
+      - backend
+    depends_on:
+      - mysql_server
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql_server
+      - PMA_PORT=3306
+  
+networks:
+  backend:
+    name: backend
+    external: true
+
+  frontend:
+    name: frontend
+    external: true
+
+
+    
